@@ -25,7 +25,7 @@ async function createLambda() {
       FunctionName: functionName,
       Runtime: 'nodejs22.x',
       Role: roleArn,
-      Handler: 'app.handler',
+      Handler: 'server.handler',
       Code: { ZipFile: zipFile },
       Description: 'Test function',
       Timeout: 10,
