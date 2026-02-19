@@ -6,6 +6,7 @@ const {
   CreateFunctionUrlConfigCommand,
   LambdaClient,
   GetFunctionUrlConfigCommand,
+  UpdateFunctionUrlConfigCommand,
   UpdateFunctionCodeCommand,
 } = require('@aws-sdk/client-lambda');
 const fs = require('fs');
@@ -53,6 +54,17 @@ async function createLambda() {
     );
     functionUrl = getUrl.FunctionUrl;
     console.log('Function URL already exists:', functionUrl);
+
+    await client.send(
+      new UpdateFunctionUrlConfigCommand({
+        FunctionName: functionName,
+        AuthType: 'NONE',
+        Cors: {
+          AllowOrigins: ['*'],
+          AllowMethods: ['GET', 'POST'],
+        },
+      })
+    );
   } catch {
     console.log('Creating new Function URL...');
     const urlCommand = new CreateFunctionUrlConfigCommand({

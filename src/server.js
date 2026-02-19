@@ -20,9 +20,7 @@ app.use('/api', require('./routes/status'));
 app.use('/api', require('./routes/download'));
 app.use('/admin', require('./routes/admin'));
 
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5500;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
+const PORT = process.env.PORT || 5500;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 exports.handler = serverlessExpress({ app });

@@ -69,7 +69,7 @@ jobs:
       - name: Zip Lambda function
         run: |
           # Create zip including handler, assets, source, and deps
-          zip -r function.zip app.js public src node_modules package.json package-lock.json .env server.js
+          zip -r function.zip app.js public src node_modules package.json yarn.lock .env server.js
 
       - name: Deploy Lambda using AWS SDK
         id: lambda
