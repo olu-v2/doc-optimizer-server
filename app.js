@@ -23,7 +23,8 @@ app.use('/', (req, res) => {
   res.send('Here');
 });
 
-const PORT = process.env.PORT || 5500;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
 
 exports.handler = serverlessExpress({ app });
