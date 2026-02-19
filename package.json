@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "dev": "nodemon ./src/server.js",
+    "dev": "nodemon server.js",
     "lint": "eslint ."
   },
   "repository": "https://github.com/olu-v2/doc-optimizer-server.git",
