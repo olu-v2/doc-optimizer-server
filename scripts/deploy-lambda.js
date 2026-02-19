@@ -25,7 +25,7 @@ async function createLambda() {
       FunctionName: functionName,
       Runtime: 'nodejs22.x',
       Role: roleArn,
-      Handler: 'server.handler',
+      Handler: 'app.handler',
       Code: { ZipFile: zipFile },
       Description: 'Test function',
       Timeout: 10,
@@ -54,17 +54,6 @@ async function createLambda() {
     );
     functionUrl = getUrl.FunctionUrl;
     console.log('Function URL already exists:', functionUrl);
-
-    await client.send(
-      new UpdateFunctionUrlConfigCommand({
-        FunctionName: functionName,
-        AuthType: 'NONE',
-        Cors: {
-          AllowOrigins: ['*'],
-          AllowMethods: ['GET', 'POST'],
-        },
-      })
-    );
   } catch {
     console.log('Creating new Function URL...');
     const urlCommand = new CreateFunctionUrlConfigCommand({
