@@ -1,13 +1,14 @@
-require('dotenv').config();
-const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const {
+import dotenv from 'dotenv';
+dotenv.config();
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import {
   DynamoDBDocumentClient,
   PutCommand,
   GetCommand,
   UpdateCommand,
   QueryCommand,
-} = require('@aws-sdk/lib-dynamodb');
-const { v4: uuidv4 } = require('uuid');
+} from '@aws-sdk/lib-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
 
 const ddb = DynamoDBDocumentClient.from(
   new DynamoDBClient({
