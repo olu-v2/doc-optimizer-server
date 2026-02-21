@@ -22,7 +22,7 @@ const USAGE_TABLE = process.env.DYNAMO_USAGE_TABLE;
 
 // ─── conversion_jobs ─────────────────────────────────────────────
 
-exports.createJob = async ({ jobId, key, optimizationLevel, clientId }) => {
+export const createJob = async ({ jobId, key, optimizationLevel, clientId }) => {
   const now = new Date(); // ← fix: declare now
   const expiresAt = Math.floor(now.getTime() / 1000) + 60 * 60 * 48;
 
@@ -45,7 +45,7 @@ exports.createJob = async ({ jobId, key, optimizationLevel, clientId }) => {
   );
 };
 
-exports.updateJobStatus = async (jobId, status, extra = {}) => {
+export const updateJobStatus = async (jobId, status, extra = {}) => {
   await ddb.send(
     new UpdateCommand({
       // ← fix: ddb not db
@@ -58,7 +58,7 @@ exports.updateJobStatus = async (jobId, status, extra = {}) => {
   );
 };
 
-exports.getJob = async jobId => {
+export const getJob = async jobId => {
   const { Item } = await ddb.send(
     new GetCommand({
       TableName: JOBS_TABLE, // ← fix: was TABLE (undefined)
@@ -70,7 +70,7 @@ exports.getJob = async jobId => {
 
 // ─── api_keys ─────────────────────────────────────────────────────
 
-exports.getApiKey = async apiKey => {
+export const getApiKey = async apiKey => {
   const { Item } = await ddb.send(
     new GetCommand({
       // ← fix: ddb not db
@@ -81,7 +81,7 @@ exports.getApiKey = async apiKey => {
   return Item;
 };
 
-exports.createApiKey = async ({ clientId, plan = 'standard' }) => {
+export const createApiKey = async ({ clientId, plan = 'standard' }) => {
   const apiKey = `sk_live_${uuidv4().replace(/-/g, '')}`;
   const createdAt = new Date().toISOString();
   const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
@@ -96,7 +96,7 @@ exports.createApiKey = async ({ clientId, plan = 'standard' }) => {
   return { apiKey, clientId, plan, createdAt, expiresAt };
 };
 
-exports.deactivateApiKey = async apiKey => {
+export const deactivateApiKey = async apiKey => {
   await ddb.send(
     new UpdateCommand({
       TableName: KEYS_TABLE,
@@ -109,7 +109,7 @@ exports.deactivateApiKey = async apiKey => {
 
 // ─── api_usage ────────────────────────────────────────────────────
 
-exports.logUsage = async ({ clientId, endpoint, jobId }) => {
+export const logUsage = async ({ clientId, endpoint, jobId }) => {
   await ddb.send(
     new PutCommand({
       // ← fix: ddb not db
@@ -125,7 +125,7 @@ exports.logUsage = async ({ clientId, endpoint, jobId }) => {
   );
 };
 
-exports.getUsageByClient = async clientId => {
+export const getUsageByClient = async clientId => {
   const { Items } = await ddb.send(
     new QueryCommand({
       TableName: USAGE_TABLE,

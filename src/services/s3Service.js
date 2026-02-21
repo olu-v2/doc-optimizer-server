@@ -6,7 +6,7 @@ const s3 = new S3Client({
   region: process.env.AWS_REGION,
 });
 
-exports.generateUploadUrl = async contentType => {
+export const generateUploadUrl = async contentType => {
   const fileId = uuidv4();
   const key = `uploads/original/${fileId}`;
 
@@ -21,7 +21,7 @@ exports.generateUploadUrl = async contentType => {
   return { uploadUrl, key, fileId };
 };
 
-exports.generateDownloadUrl = async key => {
+export const generateDownloadUrl = async key => {
   const command = new GetObjectCommand({
     Bucket: process.env.S3_BUCKET,
     Key: key,

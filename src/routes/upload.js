@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { generateUploadUrl } from '../services/s3Service';
+import { createJob } from '../services/dynamoService';
+
 const router = express.Router();
-const { generateUploadUrl } = require('../services/s3Service');
-const { createJob } = require('../services/dynamoService');
 
 router.post('/upload-url', async (req, res) => {
   try {
@@ -27,4 +28,4 @@ router.post('/upload-url', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

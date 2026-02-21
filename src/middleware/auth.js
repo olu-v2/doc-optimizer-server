@@ -1,6 +1,6 @@
-const { getApiKey, logUsage } = require('../services/dynamoService');
+import { getApiKey, logUsage } from '../services/dynamoService';
 
-module.exports = async (req, res, next) => {
+export const createJob = async (req, res, next) => {
   const apiKey = req.headers['x-api-key'];
 
   if (!apiKey) {

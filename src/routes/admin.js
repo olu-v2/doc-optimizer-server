@@ -30,4 +30,4 @@ router.post('/keys', async (req, res) => {
   res.status(201).json({ apiKey, clientId });
 });
 
-module.exports = router;
+export default router;

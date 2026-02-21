@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import { getJob } from '../services/dynamoService';
+
 const router = express.Router();
-const { getJob } = require('../services/dynamoService');
 
 router.get('/status/:jobId', async (req, res) => {
   try {
@@ -26,4 +27,4 @@ router.get('/status/:jobId', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

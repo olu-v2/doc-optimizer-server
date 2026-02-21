@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { getJob } from '../services/dynamoService';
+import { generateDownloadUrl } from '../services/s3Service';
+
 const router = express.Router();
-const { getJob } = require('../services/dynamoService');
-const { generateDownloadUrl } = require('../services/s3Service');
 
 router.get('/download/:jobId', async (req, res) => {
   try {
@@ -27,4 +28,4 @@ router.get('/download/:jobId', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -1,9 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const { success, error } = require('../utils/response');
-const { invokeProcessingLambda } = require('../services/lambdaService');
-const { updateJobStatus } = require('../services/dynamoService');
+import express from 'express';
+import { success, error } from '../utils/response';
+import { invokeProcessingLambda } from '../services/lambdaService';
+import { updateJobStatus } from '../services/dynamoService';
 
+const router = express.Router();
 router.post('/process', async (req, res) => {
   try {
     const { key, optimizationLevel, jobId } = req.body;
@@ -21,4 +21,4 @@ router.post('/process', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

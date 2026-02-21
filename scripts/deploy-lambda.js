@@ -1,17 +1,13 @@
-// scripts/deploy-lambda.js
-require('dotenv').config({ override: true });
-
-const fs = require('fs');
-const {
+import dotenv from 'dotenv';
+import fs from 'fs';
+import {
   LambdaClient,
   CreateFunctionCommand,
   UpdateFunctionCodeCommand,
   AddPermissionCommand,
-  GetFunctionUrlConfigCommand,
-  CreateFunctionUrlConfigCommand,
-} = require('@aws-sdk/client-lambda');
+} from '@aws-sdk/client-lambda';
 
-const {
+import {
   ApiGatewayV2Client,
   CreateApiCommand,
   GetApisCommand,
@@ -21,7 +17,9 @@ const {
   CreateIntegrationCommand,
   CreateRouteCommand,
   CreateStageCommand,
-} = require('@aws-sdk/client-apigatewayv2');
+} from '@aws-sdk/client-apigatewayv2';
+
+dotenv.config({ override: true });
 
 const client = new LambdaClient({ region: process.env.AWS_REGION || 'us-east-1' });
 const apiClient = new ApiGatewayV2Client({ region: process.env.AWS_REGION });
