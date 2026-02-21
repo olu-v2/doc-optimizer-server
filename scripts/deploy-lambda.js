@@ -8,7 +8,19 @@ const {
   GetFunctionUrlConfigCommand,
   UpdateFunctionCodeCommand,
 } = require('@aws-sdk/client-lambda');
+const {
+  ApiGatewayV2Client,
+  CreateApiCommand,
+  GetApisCommand,
+  CreateIntegrationCommand,
+  CreateRouteCommand,
+  CreateStageCommand,
+} = require('@aws-sdk/client-apigatewayv2');
 const fs = require('fs');
+
+const apiClient = new ApiGatewayV2Client({
+  region: process.env.AWS_REGION,
+});
 
 // allow region, role and function name to be provided via environment variables
 const client = new LambdaClient({ region: process.env.AWS_REGION || 'us-east-1' });
@@ -77,6 +89,15 @@ async function createLambda() {
       StatementId: 'PublicAccess',
     });
     await client.send(permissionCommand);
+
+    await client.send(
+      new AddPermissionCommand({
+        FunctionName: functionName,
+        Action: 'lambda:InvokeFunction',
+        Principal: '*',
+        StatementId: 'PublicInvokeFunction',
+      })
+    );
     console.log('Public invoke permission confirmed.');
   } catch (err) {
     if (err.name === 'ResourceConflictException') {
@@ -86,9 +107,68 @@ async function createLambda() {
     }
   }
 
-  console.log('\n Function ready at:', functionUrl);
+  const apiName = `preview-api-${process.env.LAMBDA_FUNCTION_NAME}`;
+
+  // 1️⃣ Check if API already exists
+  const existingApis = await apiClient.send(new GetApisCommand({}));
+  let api = existingApis.Items?.find(a => a.Name === apiName);
+
+  if (!api) {
+    console.log('Creating new HTTP API...');
+
+    api = await apiClient.send(
+      new CreateApiCommand({
+        Name: apiName,
+        ProtocolType: 'HTTP',
+        CorsConfiguration: {
+          AllowOrigins: ['*'],
+          AllowMethods: ['GET', 'POST', 'OPTIONS', 'PUT'],
+          AllowHeaders: ['*'],
+        },
+      })
+    );
+  } else {
+    console.log('API already exists.');
+  }
+
+  const integration = await apiClient.send(
+    new CreateIntegrationCommand({
+      ApiId: api.ApiId,
+      IntegrationType: 'AWS_PROXY',
+      IntegrationUri: `arn:aws:lambda:${process.env.AWS_REGION}:${process.env.AWS_ACCOUNT_ID}:function:${functionName}`,
+      PayloadFormatVersion: '2.0',
+    })
+  );
+  await apiClient.send(
+    new CreateRouteCommand({
+      ApiId: api.ApiId,
+      RouteKey: 'ANY /',
+      Target: `integrations/${integration.IntegrationId}`,
+    })
+  );
+  await apiClient.send(
+    new CreateStageCommand({
+      ApiId: api.ApiId,
+      StageName: '$default',
+      AutoDeploy: true,
+    })
+  );
+
+  await client.send(
+    new AddPermissionCommand({
+      FunctionName: functionName,
+      Action: 'lambda:InvokeFunction',
+      Principal: 'apigateway.amazonaws.com',
+      StatementId: `ApiGatewayInvoke-${process.env.LAMBDA_FUNCTION_NAME}`,
+    })
+  );
+
+  const apiUrl = api.ApiEndpoint;
+
+  console.log('API Gateway URL:', apiUrl);
+
   if (process.env.GITHUB_OUTPUT) {
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `function_url=${functionUrl}\n`);
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `function_url=${apiUrl}\n`);
   }
 }
 

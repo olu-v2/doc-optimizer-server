@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const serverlessExpress = require('@codegenie/serverless-express');
+const serverlessExpress = require('@vendia/serverless-express');
 const auth = require('./src/middleware/auth');
 const rateLimiter = require('./src/middleware/rateLimiter');
 
