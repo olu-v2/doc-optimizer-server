@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import serverlessExpress from '@vendia/serverless-express';
 import { authMiddleware } from './src/middleware/auth.js';
-import { rateLimit } from './src/middleware/rateLimiter.js';
+import { rateLimiter } from './src/middleware/rateLimiter.js';
 import uploadRoutes from './src/routes/upload.js';
 import processRoutes from './src/routes/process.js';
 import statusRoutes from './src/routes/status.js';
@@ -19,7 +19,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use('/api', rateLimit);
+app.use('/api', rateLimiter);
 app.use('/api', authMiddleware);
 app.use('/api', uploadRoutes);
 app.use('/api', processRoutes);
