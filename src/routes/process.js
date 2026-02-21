@@ -1,7 +1,7 @@
 import express from 'express';
-import { success, error } from '../utils/response';
-import { invokeProcessingLambda } from '../services/lambdaService';
-import { updateJobStatus } from '../services/dynamoService';
+import { success, error } from '../utils/response.js';
+import { invokeProcessingLambda } from '../services/lambdaService.js';
+import { updateJobStatus } from '../services/dynamoService.js';
 
 const router = express.Router();
 router.post('/process', async (req, res) => {

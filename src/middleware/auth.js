@@ -1,4 +1,4 @@
-import { getApiKey, logUsage } from '../services/dynamoService';
+import { getApiKey, logUsage } from '../services/dynamoService.js';
 
 export const authMiddleware = async (req, res, next) => {
   const apiKey = req.headers['x-api-key'];

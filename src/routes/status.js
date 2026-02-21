@@ -1,5 +1,5 @@
 import express from 'express';
-import { getJob } from '../services/dynamoService';
+import { getJob } from '../services/dynamoService.js';
 
 const router = express.Router();
 

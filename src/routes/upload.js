@@ -1,6 +1,6 @@
 import express from 'express';
-import { generateUploadUrl } from '../services/s3Service';
-import { createJob } from '../services/dynamoService';
+import { generateUploadUrl } from '../services/s3Service.js';
+import { createJob } from '../services/dynamoService.js';
 
 const router = express.Router();
 
