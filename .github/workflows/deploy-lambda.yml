@@ -88,9 +88,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const previewUrl = `${{ steps.lambda.outputs.function_url }}`;
-            github.issues.createComment({
-              issue_number: ${{ github.event.number }},
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
+              issue_number: context.issue.number,
               body: `Deployed Preview URL: ${previewUrl}`
-            })
+            });
