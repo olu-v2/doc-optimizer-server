@@ -778,7 +778,7 @@
   resolved "https://registry.yarnpkg.com/@aws/lambda-invoke-store/-/lambda-invoke-store-0.2.3.tgz#f1137f56209ccc69c15f826242cbf37f828617dd"
   integrity sha512-oLvsaPMTBejkkmHhjf09xTgk71mOqyr/409NKhRIL08If7AhVfUsJhVsx386uJaqNd42v9kWamQ9lFbkoC2dYw==
 
-"@codegenie/serverless-express@^4.12.5":
+"@codegenie/serverless-express@^4.12.5", "@codegenie/serverless-express@^4.17.1":
   version "4.17.1"
   resolved "https://registry.yarnpkg.com/@codegenie/serverless-express/-/serverless-express-4.17.1.tgz#70c30713d4ec37bda1366d55a551a55c62d5ee6d"
   integrity sha512-B/4RRtVK2iAp5ho+qoUFxUeMaWCgSP+hNrdLJV3DWKZ1E9n9oLKdsJ6W9LQekZsD8rGD15hDadIKWKKw5i3f3A==
