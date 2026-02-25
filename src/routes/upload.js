@@ -4,27 +4,40 @@ import { createJob } from '../services/dynamoService.js';
 
 const router = express.Router();
 
+const allowedTypes = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
 router.post('/upload-url', async (req, res) => {
   try {
     const { contentType, optimizationLevel } = req.body;
 
-    if (!contentType) return res.status(400).json({ error: 'Content type required' });
-    if (!optimizationLevel) return res.status(400).json({ error: 'optimizationLevel required' });
+    if (!contentType) return error(res, 'Content type required', 'CONTENT_TYPE_NOT_PROVIDED', 400);
+    if (!allowedTypes.includes(contentType))
+      return error(res, 'Only PDF and DOCX files are supported', 'INVALID_FILE_FORMAT', 400);
+    if (!optimizationLevel)
+      return error(res, 'optimizationLevel required', 'OPTIMIZATION_LEVEL', 400);
 
     const validLevels = ['low', 'medium', 'high'];
     if (!validLevels.includes(optimizationLevel)) {
-      return res.status(400).json({ error: 'optimizationLevel must be low, medium, or high' });
+      return error(
+        res,
+        'Optimization level must be low, medium or high',
+        'INVALID_OPTIMIZATION_LEVEL',
+        400
+      );
     }
 
     const { uploadUrl, key, fileId } = await generateUploadUrl(contentType);
 
     // Create a job record in DynamoDB
-    await createJob({ jobId: fileId, key, optimizationLevel });
+    await createJob({ jobId: fileId, key, optimizationLevel, clientId: req.clientId });
 
     res.json({ uploadUrl, key, jobId: fileId });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to generate upload URL' });
+    return error(res, 'Failed to generate upload URL', 'URL_GENERATION_ERROR', 500);
   }
 });
 

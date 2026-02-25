@@ -81,7 +81,7 @@ export const getApiKey = async apiKey => {
   return Item;
 };
 
-export const createApiKey = async ({ clientId, plan = 'standard' }) => {
+export const createApiKey = async ({ clientId }) => {
   const apiKey = `sk_live_${uuidv4().replace(/-/g, '')}`;
   const createdAt = new Date().toISOString();
   const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
@@ -89,11 +89,11 @@ export const createApiKey = async ({ clientId, plan = 'standard' }) => {
   await ddb.send(
     new PutCommand({
       TableName: KEYS_TABLE,
-      Item: { apiKey, clientId, active: true, plan, createdAt, expiresAt },
+      Item: { apiKey, clientId, active: true, createdAt, expiresAt },
     })
   );
 
-  return { apiKey, clientId, plan, createdAt, expiresAt };
+  return { apiKey, clientId, createdAt, expiresAt };
 };
 
 export const deactivateApiKey = async apiKey => {
