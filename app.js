@@ -10,6 +10,7 @@ import processRoutes from './src/routes/process.js';
 import statusRoutes from './src/routes/status.js';
 import downloadRoutes from './src/routes/download.js';
 import adminRoutes from './src/routes/admin.js';
+import optimizeRoutes from './src/routes/optimize.js';
 dotenv.config();
 
 const app = express();
@@ -26,9 +27,28 @@ app.use('/api', uploadRoutes);
 app.use('/api', processRoutes);
 app.use('/api', statusRoutes);
 app.use('/api', downloadRoutes);
+app.use('/api', optimizeRoutes);
 app.use('/admin', adminRoutes);
 app.use('/', (req, res) => {
   res.send('Here');
+});
+
+app.use((err, req, res, next) => {
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({
+      success: false,
+      error: { message: 'File exceeds the 2MB limit', code: 'FILE_TOO_LARGE' },
+      timestamp: new Date().toISOString(),
+    });
+  }
+  if (err.message === 'INVALID_FILE_TYPE') {
+    return res.status(400).json({
+      success: false,
+      error: { message: 'Only PDF and DOCX files are supported', code: 'INVALID_FILE_TYPE' },
+      timestamp: new Date().toISOString(),
+    });
+  }
+  next(err);
 });
 
 if (process.env.NODE_ENV !== 'production') {

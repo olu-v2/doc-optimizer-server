@@ -33,3 +33,13 @@ export const generateDownloadUrl = async key => {
   });
   return getSignedUrl(s3, command, { expiresIn: 300 });
 };
+
+export const uploadToS3 = async (key, buffer, contentType) => {
+  const command = new PutObjectCommand({
+    Bucket: process.env.S3_BUCKET,
+    Key: key,
+    Body: buffer,
+    ContentType: contentType,
+  });
+  await s3.send(command);
+};
