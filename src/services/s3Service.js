@@ -7,8 +7,13 @@ const s3 = new S3Client({
 });
 
 export const generateUploadUrl = async contentType => {
+  const extMap = {
+    'application/pdf': 'pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  };
+  const ext = extMap[contentType] ?? 'pdf';
   const fileId = uuidv4();
-  const key = `uploads/original/${fileId}`;
+  const key = `uploads/original/${fileId}.${ext}`;
 
   const command = new PutObjectCommand({
     Bucket: process.env.S3_BUCKET,
