@@ -9,14 +9,19 @@ router.post('/process', async (req, res) => {
     const { key, optimizationLevel, jobId } = req.body;
 
     if (!key || !optimizationLevel || jobId) {
-      return error('Missing parameters: key, optimizationLevel, jobId', 'MISSING_PARAMETERS', 400);
+      return error(
+        res,
+        'Missing parameters: key, optimizationLevel, jobId',
+        'MISSING_PARAMETERS',
+        400
+      );
     }
 
     await updateJobStatus(jobId, 'PENDING');
     await invokeProcessingLambda({ key, optimizationLevel, jobId });
     return success(res, { message: 'Processing started', jobId });
   } catch (err) {
-    console.error(err);
+    console.error(`Time: ${new Date().toISOString()}`, err);
     return error(res, 'Processing failed to start', 'PROCESSING_FAILED', 500);
   }
 });
