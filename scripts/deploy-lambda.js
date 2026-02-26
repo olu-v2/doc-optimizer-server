@@ -121,19 +121,23 @@ async function createLambda() {
   }
 
   const routes = await apiClient.send(new GetRoutesCommand({ ApiId: api.ApiId }));
-  let route = routes.Items?.find(r => r.RouteKey === 'ANY /');
+  const requiredRoutes = ['ANY /', 'ANY /{proxy+}'];
 
-  if (!route) {
-    console.log('⚙️ Creating route ANY /');
-    await apiClient.send(
-      new CreateRouteCommand({
-        ApiId: api.ApiId,
-        RouteKey: 'ANY /',
-        Target: `integrations/${integration.IntegrationId}`,
-      })
-    );
-  } else {
-    console.log('Route already exists.');
+  for (const routeKey of requiredRoutes) {
+    const exists = routes.Items?.find(r => r.RouteKey === routeKey);
+
+    if (!exists) {
+      console.log(`Creating route ${routeKey}`);
+      await apiClient.send(
+        new CreateRouteCommand({
+          ApiId: api.ApiId,
+          RouteKey: routeKey,
+          Target: `integrations/${integration.IntegrationId}`,
+        })
+      );
+    } else {
+      console.log(`Route exists: ${routeKey}`);
+    }
   }
 
   const stages = await apiClient.send(new GetStagesCommand({ ApiId: api.ApiId }));
