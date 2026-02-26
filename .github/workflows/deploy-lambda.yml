@@ -69,6 +69,7 @@ jobs:
           DYNAMO_USAGE_TABLE=${{ secrets.DYNAMO_USAGE_TABLE }}
           DYNAMO_KEYS_TABLE=${{ secrets.DYNAMO_KEYS_TABLE }}
           PORT=5500
+          LAMBDA_NAME=${{ secrets.LAMBDA_NAME }}
           EOF
 
       - name: Zip Lambda function
