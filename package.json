@@ -2,14 +2,23 @@
   "name": "doc-optimizer-server",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "dev": "nodemon app.js",
+    "lint": "eslint ."
+  },
   "repository": "https://github.com/olu-v2/doc-optimizer-server.git",
   "author": "Olumide Akinkunmi <mide.akinkunmi@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@aws-sdk/client-apigatewayv2": "^3.995.0",
+    "@aws-sdk/client-dynamodb": "^3.993.0",
     "@aws-sdk/client-lambda": "^3.993.0",
     "@aws-sdk/client-s3": "^3.993.0",
     "@aws-sdk/lib-dynamodb": "^3.993.0",
     "@aws-sdk/s3-request-presigner": "^3.993.0",
+    "@codegenie/serverless-express": "^4.17.1",
     "@vendia/serverless-express": "^4.12.6",
     "aws-sdk": "^2.1693.0",
     "body-parser": "^2.2.2",
@@ -19,6 +28,7 @@
     "express-rate-limit": "^8.2.1",
     "multer": "^2.0.2",
     "multer-s3": "^3.0.1",
+    "nodemon": "^3.1.11",
     "uuid": "^13.0.0"
   }
 }

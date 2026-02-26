@@ -1,10 +1,10 @@
-const { LambdaClient, InvokeCommand } = require('@aws-sdk/client-lambda');
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 
 const lambda = new LambdaClient({
   region: process.env.AWS_REGION,
 });
 
-exports.invokeProcessingLambda = async payload => {
+export const invokeProcessingLambda = async payload => {
   if (!process.env.LAMBDA_NAME) throw new Error('LAMBDA_NAME env variable is not set');
 
   const command = new InvokeCommand({

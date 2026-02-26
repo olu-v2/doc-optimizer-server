@@ -1,0 +1,102 @@
+name: Deploy Lambda
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  # test:
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     JWT_SECRET: ${{ secrets.JWT_SECRET}}
+  #     DATABASE_URI: ${{ secrets.DATABASE_URI }}
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 1
+
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         cache: 'yarn'
+  #     - name: Install dependencies
+  #       run: yarn install --frozen-lockfile
+  #     - name: Run Jest tests
+  #       run: yarn test --coverage
+  #     - name: Delete Jest Coverage Folder
+  #       run: |
+  #         rm -rf coverage
+  deploy:
+    runs-on: ubuntu-latest
+    # needs: test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn'
+
+      # You only need to install dependencies once
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      # Run ESLint for static code analysis
+      # - name: Run ESLint
+      #   run: yarn lint
+
+      # Fail the build if high-severity vulnerabilities exist
+      # - name: Security Audit
+      #   run: yarn audit --level high
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          S3_BUCKET=${{ secrets.S3_BUCKET}}
+          DYNAMO_TABLE=${{ secrets.DYNAMO_TABLE }}
+          DYNAMO_USAGE_TABLE=${{ secrets.DYNAMO_USAGE_TABLE }}
+          DYNAMO_KEYS_TABLE=${{ secrets.DYNAMO_KEYS_TABLE }}
+          PORT=5500
+          LAMBDA_NAME=${{ secrets.LAMBDA_NAME }}
+          EOF
+
+      - name: Zip Lambda function
+        run: |
+          # Create zip including handler, assets, source, and deps
+          zip -r function.zip app.js public src node_modules package.json yarn.lock .env server.js
+
+      - name: Deploy Lambda using AWS SDK
+        id: lambda
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          LAMBDA_ROLE_ARN: ${{ secrets.LAMBDA_ROLE_ARN }}
+          LAMBDA_FUNCTION_NAME: pr-${{ github.event.number }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        run: node scripts/deploy-lambda.js
+      - name: Post PR Comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const previewUrl = `${{ steps.lambda.outputs.function_url }}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Deployed Preview URL: ${previewUrl}`
+            });

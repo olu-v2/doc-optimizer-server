@@ -1,24 +1,29 @@
-const express = require('express');
-const router = express.Router();
-const { success, error } = require('../utils/response');
-const { invokeProcessingLambda } = require('../services/lambdaService');
-const { updateJobStatus } = require('../services/dynamoService');
+import express from 'express';
+import { success, error } from '../utils/response.js';
+import { invokeProcessingLambda } from '../services/lambdaService.js';
+import { updateJobStatus } from '../services/dynamoService.js';
 
+const router = express.Router();
 router.post('/process', async (req, res) => {
   try {
     const { key, optimizationLevel, jobId } = req.body;
 
-    if (!key || !optimizationLevel) {
-      return res.status(400).json({ error: 'Missing parameters: key, optimizationLevel, jobId' });
+    if (!key || !optimizationLevel || !jobId) {
+      return error(
+        res,
+        'Missing parameters: key, optimizationLevel, jobId',
+        'MISSING_PARAMETERS',
+        400
+      );
     }
 
     await updateJobStatus(jobId, 'PENDING');
     await invokeProcessingLambda({ key, optimizationLevel, jobId });
-    success(res, { message: 'Processing started', jobId });
+    return success(res, { message: 'Processing started', jobId });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Processing failed to start' });
+    console.error(`Time: ${new Date().toISOString()}`, err);
+    return error(res, 'Processing failed to start', 'PROCESSING_FAILED', 500);
   }
 });
 
-module.exports = router;
+export default router;

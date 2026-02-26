@@ -1,0 +1,52 @@
+name: Deploy Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn'
+
+      # You only need to install dependencies once
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          S3_BUCKET=${{ secrets.S3_BUCKET}}
+          DYNAMO_TABLE=${{ secrets.DYNAMO_TABLE }}
+          DYNAMO_USAGE_TABLE=${{ secrets.DYNAMO_USAGE_TABLE }}
+          DYNAMO_KEYS_TABLE=${{ secrets.DYNAMO_KEYS_TABLE }}
+          PORT=5500
+          LAMBDA_NAME=${{ secrets.LAMBDA_NAME }}
+          EOF
+
+      - name: Zip Lambda function
+        run: |
+          # Create zip including handler, assets, source, and deps
+          zip -r function.zip app.js public src node_modules package.json yarn.lock .env server.js
+
+      - name: Deploy Lambda using AWS SDK
+        id: lambda
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          LAMBDA_ROLE_ARN: ${{ secrets.LAMBDA_ROLE_ARN }}
+          LAMBDA_FUNCTION_NAME: production
+        run: node scripts/deploy-lambda.js

@@ -1,14 +1,19 @@
-const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const { v4: uuidv4 } = require('uuid');
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { v4 as uuidv4 } from 'uuid';
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
 });
 
-exports.generateUploadUrl = async contentType => {
+export const generateUploadUrl = async contentType => {
+  const extMap = {
+    'application/pdf': 'pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  };
+  const ext = extMap[contentType] ?? 'pdf';
   const fileId = uuidv4();
-  const key = `uploads/original/${fileId}`;
+  const key = `uploads/original/${fileId}.${ext}`;
 
   const command = new PutObjectCommand({
     Bucket: process.env.S3_BUCKET,
@@ -21,10 +26,20 @@ exports.generateUploadUrl = async contentType => {
   return { uploadUrl, key, fileId };
 };
 
-exports.generateDownloadUrl = async key => {
+export const generateDownloadUrl = async key => {
   const command = new GetObjectCommand({
     Bucket: process.env.S3_BUCKET,
     Key: key,
   });
   return getSignedUrl(s3, command, { expiresIn: 300 });
+};
+
+export const uploadToS3 = async (key, buffer, contentType) => {
+  const command = new PutObjectCommand({
+    Bucket: process.env.S3_BUCKET,
+    Key: key,
+    Body: buffer,
+    ContentType: contentType,
+  });
+  await s3.send(command);
 };

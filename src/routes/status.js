@@ -1,6 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { getJob } from '../services/dynamoService.js';
+import { success, error } from '../utils/response.js';
+
 const router = express.Router();
-const { getJob } = require('../services/dynamoService');
 
 router.get('/status/:jobId', async (req, res) => {
   try {
@@ -9,10 +11,10 @@ router.get('/status/:jobId', async (req, res) => {
     const job = await getJob(jobId);
 
     if (!job) {
-      return res.status(404).json({ error: 'Job not found' });
+      return error(res, 'Job not found', 'RESOURCE_DOES_NOT_EXIST', 404);
     }
 
-    res.json({
+    return success(res, {
       jobId: job.jobId,
       status: job.status,
       optimizationLevel: job.optimizationLevel,
@@ -21,9 +23,9 @@ router.get('/status/:jobId', async (req, res) => {
       errorMsg: job.errorMsg || null,
     });
   } catch (err) {
-    console.err(err);
-    res.status(500).json({ error: 'Failed to retrieve job status' });
+    console.error(err);
+    return error(res, 'Failed to retrieve job status', 'INTERNAL_ERROR', 500);
   }
 });
 
-module.exports = router;
+export default router;

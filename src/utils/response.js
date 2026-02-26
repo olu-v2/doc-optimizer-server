@@ -1,4 +1,4 @@
-exports.success = (res, data, statusCode = 200) => {
+export const success = (res, data, statusCode = 200) => {
   res.status(statusCode).json({
     success: true,
     data,
@@ -6,7 +6,7 @@ exports.success = (res, data, statusCode = 200) => {
   });
 };
 
-exports.error = (res, message, code = 'INTERNAL_ERROR', statusCode = 500) => {
+export const error = (res, message, code = 'INTERNAL_ERROR', statusCode = 500) => {
   res.status(statusCode).json({
     success: false,
     error: { message, code },
