@@ -8,7 +8,7 @@ router.post('/process', async (req, res) => {
   try {
     const { key, optimizationLevel, jobId } = req.body;
 
-    if (!key || !optimizationLevel || jobId) {
+    if (!key || !optimizationLevel || !jobId) {
       return error(
         res,
         'Missing parameters: key, optimizationLevel, jobId',
