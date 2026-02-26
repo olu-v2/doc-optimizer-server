@@ -1,6 +1,7 @@
 import express from 'express';
 import { generateUploadUrl } from '../services/s3Service.js';
 import { createJob } from '../services/dynamoService.js';
+import { success, error } from '../utils/response.js';
 
 const router = express.Router();
 
@@ -33,8 +34,12 @@ router.post('/upload-url', async (req, res) => {
 
     // Create a job record in DynamoDB
     await createJob({ jobId: fileId, key, optimizationLevel, clientId: req.clientId });
-
-    res.json({ uploadUrl, key, jobId: fileId });
+    const data = {
+      uploadUrl,
+      key,
+      jobId: fileId,
+    };
+    return success(res, data, 200);
   } catch (error) {
     console.error(error);
     return error(res, 'Failed to generate upload URL', 'URL_GENERATION_ERROR', 500);
