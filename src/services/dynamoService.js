@@ -45,15 +45,20 @@ export const createJob = async ({ jobId, key, optimizationLevel, clientId }) => 
   );
 };
 
-export const updateJobStatus = async (jobId, status, extra = {}) => {
+export const updateJobStatus = async (jobId, status, errorMsg = null) => {
+  const hasError = errorMsg !== null;
   await ddb.send(
     new UpdateCommand({
       // ← fix: ddb not db
       TableName: JOBS_TABLE,
       Key: { jobId },
-      UpdateExpression: 'SET #s = :s, updatedAt = :t', // ← fix: updatedAT typo
+      UpdateExpression: `SET #s = :s, updatedAt = :t${hasError ? ', errorMsg = :e' : ''}`,
       ExpressionAttributeNames: { '#s': 'status' },
-      ExpressionAttributeValues: { ':s': status, ':t': new Date().toISOString(), ...extra },
+      ExpressionAttributeValues: {
+        ':s': status,
+        ':t': new Date().toISOString(),
+        ...(hasError && { ':e': errorMsg }),
+      },
     })
   );
 };
