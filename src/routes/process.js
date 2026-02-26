@@ -17,7 +17,7 @@ router.post('/process', async (req, res) => {
     return success(res, { message: 'Processing started', jobId });
   } catch (err) {
     console.error(err);
-    return (res, 'Processing failed to start', 'PROCESSING_FAILED', 500);
+    return error(res, 'Processing failed to start', 'PROCESSING_FAILED', 500);
   }
 });
 

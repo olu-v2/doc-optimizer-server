@@ -20,10 +20,9 @@ router.get('/download/:jobId', async (req, res) => {
 
     const downloadUrl = await generateDownloadUrl(job.outputKey);
     return success(res, { downloadUrl }, 200);
-    res.json({ downloadUrl });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to generate download URL' });
+  } catch (err) {
+    console.error(err);
+    return error(res, 'Failed to generate download URL', 'FAILED_TO_GENERATE_URL', 500);
   }
 });
 

@@ -40,8 +40,8 @@ router.post('/upload-url', async (req, res) => {
       jobId: fileId,
     };
     return success(res, data, 200);
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
     return error(res, 'Failed to generate upload URL', 'URL_GENERATION_ERROR', 500);
   }
 });
