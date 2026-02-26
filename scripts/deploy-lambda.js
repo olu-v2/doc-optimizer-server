@@ -5,6 +5,9 @@ import {
   CreateFunctionCommand,
   UpdateFunctionCodeCommand,
   AddPermissionCommand,
+  CreateFunctionUrlConfigCommand,
+  GetFunctionUrlConfigCommand,
+  UpdateFunctionUrlConfigCommand,
 } from '@aws-sdk/client-lambda';
 
 import {
@@ -79,6 +82,37 @@ async function createLambda() {
       } else {
         throw err;
       }
+    }
+  }
+
+  try {
+    await client.send(
+      new CreateFunctionUrlConfigCommand({
+        FunctionName: functionName,
+        AuthType: 'NONE',
+        Cors: {
+          AllowOrigins: ['*'],
+          AllowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+          AllowHeaders: ['*'],
+        },
+      })
+    );
+    console.log('Function URL created with CORS.');
+  } catch (err) {
+    if (err.name === 'ResourceConflictException') {
+      await client.send(
+        new UpdateFunctionUrlConfigCommand({
+          FunctionName: functionName,
+          Cors: {
+            AllowOrigins: ['*'],
+            AllowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            AllowHeaders: ['*'],
+          },
+        })
+      );
+      console.log('Function URL CORS updated.');
+    } else {
+      throw err;
     }
   }
 
